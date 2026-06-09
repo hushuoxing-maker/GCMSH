@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.5">
+  <title>工厂目视化 · 整厂项目规划引擎</title>
+  <style>
+    :root {
+      --bg-app: #020a18;
+      --bg-card: #081428;
+      --bg-input: #050d1f;
+      --border-subtle: #172a48;
+      --accent: #00c8f0;
+      --text-primary: #d6e6ff;
+      --text-secondary: #8aa4c8;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-sans: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --radius-sm: 0.4rem;
+      --radius-lg: 1.2rem;
+      --shadow-card: 0 12px 40px rgba(0,0,0,0.6);
+      --transition: 0.2s;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg-app);
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-image: radial-gradient(ellipse at 30% 10%, rgba(0,200,240,0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 80%, rgba(0,119,190,0.05) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+    #app {
+      width: 100%;
+      max-width: 1400px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+      padding: 2rem 1.5rem 3rem;
+    }
+    /* ========== 首页英雄区 ========== */
+    #heroSection {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.8rem;
+      padding: 1.5rem 0 0.5rem;
+    }
+    #heroSection h1 {
+      font-size: clamp(2.8rem, 5.5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e0f4ff 0%, #5cc8f0 40%, #0098d0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    #heroSection .subhead {
+      font-size: 1.1rem;
+      color: #7ea0c8;
+      max-width: 750px;
+      line-height: 1.6;
+    }
+    #heroSection .subhead span {
+      color: #a0c8f0;
+      font-weight: 500;
+    }
+    .input-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem 2.5rem;
+      box-shadow: var(--shadow-card), 0 0 35px rgba(0,160,220,0.08);
+      width: 100%;
+      max-width: 1300px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+    }
+    .input-group {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .input-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6a90b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .input-group input,
+    .input-group textarea {
+      background: var(--bg-input);
+      border: 1px solid #1a3458;
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      color: #d6e6ff;
+      font-size: 1rem;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: var(--transition);
+      width: 100%;
+    }
+    .input-group input:focus,
+    .input-group textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(0,200,240,0.2);
+    }
+    .input-group textarea {
+      height: 170px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .btn-generate-hero {
+      background: linear-gradient(135deg, #005a80, #001f38);
+      border: 1px solid rgba(0,200,240,0.45);
+      padding: 1.1rem 2.8rem;
+      border-radius: 3rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      color: #e0f4ff;
+      box-shadow: 0 0 30px rgba(0,180,230,0.3);
+      transition: all 0.3s;
+      align-self: center;
+    }
+    .btn-generate-hero:hover {
+      background: linear-gradient(135deg, #0070a0, #002d50);
+      border-color: #00dcff;
+      box-shadow: 0 0 50px rgba(0,200,250,0.5);
+      transform: translateY(-1px);
+    }
+    .btn-generate-multi-hero {
+      background: linear-gradient(135deg, #265a3a, #0f2818);
+      border: 1px solid rgba(0,220,130,0.45);
+      padding: 0.9rem 2.2rem;
+      border-radius: 3rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #d0ffe8;
+      box-shadow: 0 0 20px rgba(0,200,120,0.2);
+      transition: 0.3s;
+    }
+    .btn-generate-multi-hero:hover {
+      background: linear-gradient(135deg, #307a48, #1a4030);
+      border-color: #00e87b;
+      box-shadow: 0 0 40px rgba(0,220,140,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    /* ========== 数据库面板 ========== */
+    #configPanel {
+      background: #0b1325;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    #configPanel .db-block {
+      background: #0a1220;
+      border: 1px solid #16203a;
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.7rem;
+      min-width: 150px;
+      flex: 1 0 auto;
+    }
+    #configPanel .db-block-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #6a90b8;
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+    }
+    #configPanel .chip-row { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    #configPanel .chip {
+      padding: 0.22rem 0.55rem;
+      border-radius: 1.5rem;
+      font-size: 0.64rem;
+      cursor: pointer;
+      border: 1px solid #1a3250;
+      background: #0a1424;
+      color: #7a9ab8;
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+    #configPanel .chip.active {
+      background: #082538;
+      border-color: #00c8f0;
+      color: #d8f0ff;
+    }
+    /* ========== 工作台布局 ========== */
+    #mainLayout {
+      display: flex;
+      flex: 1;
+      min-height: 60vh;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #0a1428;
+    }
+    #sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: #091324;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+    }
+    #sidebar .profile-mini {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+    #sidebar .profile-mini span {
+      background: #0d1a2e;
+      padding: 0.18rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.62rem;
+      color: #6ab8d8;
+    }
+    .nav-scroll { flex:1; overflow-y:auto; padding:0.4rem 0; }
+    .nav-section-title {
+      font-size:0.65rem; font-weight:700; color:#4a7098; padding:0.5rem 1rem 0.2rem;
+    }
+    .nav-item {
+      display:flex; align-items:center; gap:0.4rem; padding:0.4rem 1rem;
+      font-size:0.75rem; color:#8aa4c8; cursor:pointer; transition:0.12s;
+      border-left:2px solid transparent;
+    }
+    .nav-item:hover { background:#0e1a30; color:#b8d0f0; }
+    .nav-item.active { background:#0c1c38; color:#e0f2ff; border-left-color:var(--accent); }
+    #contentArea {
+      flex:1; overflow-y:auto; padding:1rem 1.5rem; background:#0b1529;
+    }
+    .content-toolbar { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .btn-sm {
+      padding:0.4rem 1rem; border-radius:2rem; font-size:0.72rem; font-weight:600;
+      cursor:pointer; border:1px solid #2a4060; background:transparent; color:#9ab8d8;
+      transition:0.2s;
+    }
+    .btn-sm:hover { background:#0f1e35; border-color:#4a80b0; color:#c8dff8; }
+    .scheme-section { margin-bottom:1.8rem; }
+    .scheme-section h2 { color:#c0dcf8; margin-bottom:0.6rem; }
+    .space-card {
+      background:#0e1b33; border:1px solid var(--border-subtle); border-radius:0.8rem;
+      margin-bottom:0.7rem;
+    }
+    .card-header {
+      display:flex; justify-content:space-between; padding:0.6rem 1rem;
+      border-bottom:1px solid #111d35;
+    }
+    .space-title { font-weight:650; color:#c8dff5; }
+    .prompt-text {
+      background:#020a16; border-radius:0.5rem; padding:0.8rem;
+      font-family:var(--font-mono); font-size:0.72rem; color:#a8c8e0;
+      border:1px solid #0e1c32; white-space:pre-wrap; max-height:260px; overflow-y:auto;
+    }
+    #toast {
+      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+      background:#0a2840; border:1px solid var(--accent); color:#d0f0ff;
+      padding:0.6rem 1.5rem; border-radius:2rem; font-size:0.8rem; z-index:999;
+      opacity:0; pointer-events:none; transition:0.25s;
+    }
+    #toast.show { opacity:1; }
+    ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-thumb { background:#1a3050; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- 首页英雄区 -->
+  <div id="heroSection">
+    <h1>工厂目视化 · 整厂项目规划引擎</h1>
+    <p class="subhead">输入工厂名称即可自动生成<span>导视系统 · 标识系统 · 安全系统 · 仓储系统 · 数字化系统</span>及全厂空间方案</p>
+    <div class="input-card">
+      <div class="input-row">
+        <div class="input-group" style="flex:2;">
+          <label>🏭 工厂名称</label>
+          <input type="text" id="factoryName" placeholder="例如：宁德时代新能源基地" value="宁德时代新能源基地">
+        </div>
+        <div class="input-group" style="flex:1.5;">
+          <label>🏷️ 行业类型</label>
+          <input type="text" id="industryType" placeholder="例如：新能源电池制造" value="新能源电池制造">
+        </div>
+        <div class="input-group" style="flex:1.5;">
+          <label>📌 品牌名称</label>
+          <input type="text" id="brandSubtitle" placeholder="例如：一期目视化项目" value="一期目视化项目">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>🎨 设计风格</label>
+          <input type="text" id="designStyle" placeholder="例：智能制造风 / 工业4.0科技风" value="智能制造风">
+        </div>
+        <div class="input-group">
+          <label>🎯 项目定位</label>
+          <input type="text" id="projectPosition" placeholder="例：整厂精益6S+数字化看板" value="整厂精益6S+数字化看板">
+        </div>
+        <div class="input-group">
+          <label>💰 预算等级</label>
+          <input type="text" id="budgetLevel" placeholder="例：B级·标准工业级" value="B级·标准工业级">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>📝 其他说明</label>
+        <textarea id="otherNotes" placeholder="补充需求：参观通道、验厂标准、特殊安全要求……">参观通道+验厂ISO9001+预算B级，需通过特斯拉供应链审核</textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn-generate-hero" id="btnGenerate">⚡ 立即生成整厂项目方案</button>
+        <button class="btn-generate-multi-hero" id="btnGenerate3">🌐 生成3套不同风格方案</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数据库选择面板 -->
+  <div id="configPanel"></div>
+
+  <!-- 工作台（默认隐藏，生成后显示） -->
+  <div id="mainLayout" style="display:none;">
+    <div id="sidebar">
+      <div class="profile-mini" id="profileMini">
+        <span style="color:#5a8ab0;">📋 主档案</span>
+        <span id="pfStyle"></span><span id="pfColor"></span><span id="pfMaterial"></span>
+      </div>
+      <div class="nav-scroll" id="navScroll"></div>
+    </div>
+    <div id="contentArea">
+      <div class="content-toolbar">
+        <button class="btn-sm" id="btnCopyAll">📋 复制全部空间</button>
+        <button class="btn-sm" id="btnExportTXT">📄 TXT</button>
+        <button class="btn-sm" id="btnExportMD">📝 MD</button>
+        <button class="btn-sm" id="btnExportWord">📃 Word</button>
+        <button class="btn-sm" id="btnExportPDF">🖨️ PDF</button>
+      </div>
+      <div id="schemesContainer"></div>
+    </div>
+  </div>
+</div>
+<div id="toast">✅ 已复制</div>
+
+<script>
+(function() {
+  const DATABASES = [
+    { id:'factory_industry', icon:'🏭', title:'工厂行业', items:['汽车制造工厂','新能源工厂','锂电池工厂','光伏工厂','储能工厂','电子厂','SMT工厂','半导体工厂','芯片工厂','PCB工厂','五金工厂','机械加工厂','数控加工厂','模具工厂','注塑工厂','橡胶工厂','塑胶工厂','食品工厂','饮料工厂','乳制品工厂','酒厂','制药厂','生物科技工厂','医疗器械工厂','包装工厂','印刷工厂','纺织厂','服装厂','鞋厂','家具厂','木制品工厂','钢结构工厂','铝材工厂','铜材工厂','化工厂','电镀厂','物流仓储中心','冷链仓储中心','电商仓储中心','智能制造基地','工业园区','产业园区','军工企业','航空制造企业','轨道交通制造企业'] },
+    { id:'factory_area', icon:'🗺️', title:'工厂区域', items:['厂区入口区','门岗区','办公区','接待大厅','企业展厅','企业文化区','党建区','员工休息区','培训区','会议区','研发中心','实验室','生产车间','装配车间','注塑车间','机加工车间','焊接车间','钣金车间','喷涂车间','包装车间','无尘车间','洁净车间','仓储区','原料仓','半成品仓','成品仓','发货区','收货区','物流区','品质检测区','维修区','设备区','能源区','消防区','危险品区','危废区','配电房','空压机房','锅炉房','水处理区','员工通道','叉车通道','AGV通道','参观通道'] },
+    { id:'visual_type', icon:'🧭', title:'目视化类型', items:['地面目视化','墙面目视化','立柱目视化','设备目视化','仓储目视化','物流目视化','安全目视化','品质目视化','生产目视化','精益目视化','数字化目视化','企业文化目视化','党建目视化','能源目视化','TPM目视化','MES目视化','EHS目视化','实验室目视化','办公区目视化','访客参观目视化'] },
+    { id:'color_system', icon:'🎨', title:'颜色规范', items:['国标安全色','ISO安全色','GB2893','丰田色彩','华为制造色彩','比亚迪色彩','富士康色彩','工业4.0科技蓝','智能工厂蓝白','新能源绿色','食品洁净白','医药无菌','军工工业灰'] },
+    { id:'equipment', icon:'⚙️', title:'设备', items:['数控机床','CNC加工中心','焊接机器人','AGV机器人','立体仓库','机械臂','注塑机','视觉检测','MES终端','数字大屏','物流输送线','自动分拣系统'] },
+    { id:'style_db', icon:'🎭', title:'工厂风格', items:['丰田精益风','华为制造风','富士康工业风','比亚迪智造风','宁德时代新能源风','西门子工业风','博世工业风','工业4.0科技风','智能制造风','未来工厂风','数字孪生风','黑灯工厂风','现代工业极简风','德系工业风','日系精益风','高端装备制造风','航空制造风','军工品质风','蓝白科技风','红黑工业风'] },
+    { id:'material_db', icon:'🧱', title:'材质', items:['拉丝不锈钢','亚克力UV打印','铝塑板','镀锌钢板','LED电子屏','工业触摸屏','电子墨水屏','导光板系统','发光字系统','数字驾驶舱大屏','PVC板','PET贴膜','反光膜'] },
+    { id:'layout_db', icon:'📐', title:'版式', items:['模块化矩阵式','驾驶舱式','数字界面式','智慧工厂式','工业管道式','参数化结构式','横向长条式','纵向导视式'] },
+    { id:'signage_sys', icon:'🪧', title:'导视系统', items:['总平面图','区域导视牌','楼层导视牌','方向导视牌','设备导视牌','工位导视牌','安全导视牌','应急导视牌','访客导视牌','物流导视牌','车间导视牌'] },
+    { id:'coding_sys', icon:'🔢', title:'编码系统', items:['设备编码','工位编码','货架编码','库位编码','区域编码','物料编码','产品编码','资产编码','人员编码','车辆编码'] },
+    { id:'font_db', icon:'🔤', title:'字体', items:['DIN工业字体','思源黑体','阿里巴巴普惠体','HarmonyOS Sans','方正兰亭黑','工业警示字体','数字驾驶舱字体'] },
+    { id:'lighting', icon:'💡', title:'照明', items:['工业线性灯','导光板发光','发光字系统','智慧照明','投光灯','LED灯箱','磁吸轨道灯'] },
+    { id:'construction', icon:'🛠️', title:'施工工艺', items:['UV打印','丝网印刷','激光雕刻','金属蚀刻','模块化安装','快装系统','数字屏集成系统'] },
+    { id:'audit_std', icon:'✅', title:'验厂标准', items:['ISO9001','ISO14001','ISO45001','IATF16949','BRC','HACCP','GMP','FDA','SA8000','特斯拉验厂','华为验厂','苹果验厂'] },
+    { id:'corp_culture', icon:'🏛️', title:'企业文化', items:['企业使命','企业愿景','核心价值观','质量方针','安全方针','工匠精神','创新精神','精益文化','数字化文化','持续改善文化'] },
+    { id:'safety_mgmt', icon:'🛡️', title:'安全管理', items:['消防安全','机械安全','用电安全','职业健康','劳保用品','安全隐患管理','安全生产标准化','双重预防机制'] },
+    { id:'lean_mgmt', icon:'📐', title:'精益生产', items:['5S','6S','7S','TPM','JIT','KANBAN','ANDON','QCC','PDCA','标准作业','快速换模SMED','拉动式生产'] },
+    { id:'digital_sys', icon:'💻', title:'数字化系统', items:['MES系统','ERP系统','WMS系统','SCADA系统','PLM系统','数字驾驶舱','数字孪生平台','AI视觉检测平台'] },
+    { id:'kanban', icon:'📋', title:'看板', items:['生产计划看板','品质看板','安全看板','设备看板','订单看板','MES电子看板','数字驾驶舱大屏','实时监控看板'] },
+    { id:'warehouse_mgmt', icon:'📦', title:'仓储管理', items:['库位管理','先进先出','RFID管理','批次管理','追溯管理','WMS系统','库存预警管理'] },
+  ];
+
+  const selectedMap = new Map();
+  DATABASES.forEach(db => selectedMap.set(db.id, new Set()));
+
+  function renderConfigPanel() {
+    const panel = document.getElementById('configPanel');
+    panel.innerHTML = '';
+    DATABASES.forEach(db => {
+      const block = document.createElement('div');
+      block.className = 'db-block';
+      block.innerHTML = `<div class="db-block-title">${db.icon} ${db.title}</div><div class="chip-row"></div>`;
+      const row = block.querySelector('.chip-row');
+      db.items.forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = item;
+        chip.dataset.dbId = db.id;
+        chip.dataset.value = item;
+        chip.addEventListener('click', () => {
+          const set = selectedMap.get(db.id);
+          if (set.has(item)) { set.delete(item); chip.classList.remove('active'); }
+          else { set.add(item); chip.classList.add('active'); }
+        });
+        row.appendChild(chip);
+      });
+      panel.appendChild(block);
+    });
+  }
+
+  function getSelectedArray(dbId) { const set = selectedMap.get(dbId); return set ? Array.from(set) : []; }
+
+  function buildProfile() {
+    const style = document.getElementById('designStyle').value.trim() || getSelectedArray('style_db')[0] || '智能制造风';
+    const color = getSelectedArray('color_system')[0] || '工业4.0科技蓝';
+    const material = getSelectedArray('material_db')[0] || '拉丝不锈钢';
+    return {
+      factoryName: document.getElementById('factoryName').value.trim() || '智能工厂',
+      industryType: document.getElementById('industryType').value.trim() || '先进制造',
+      brand: document.getElementById('brandSubtitle').value.trim() || '目视化项目',
+      other: document.getElementById('otherNotes').value.trim(),
+      style, color, material,
+      signage: getSelectedArray('signage_sys').slice(0,3).join('+') || '区域导视+设备导视+安全导视',
+      coding: getSelectedArray('coding_sys').slice(0,3).join('+') || '设备编码+库位编码',
+      lighting: '工业线性灯+导光板发光',
+      culture: getSelectedArray('corp_culture').slice(0,2).join('+') || '工匠精神+精益文化',
+      visualStandard: getSelectedArray('visual_type').slice(0,3).join('+') || '地面目视化+安全目视化+数字化目视化',
+      safety: getSelectedArray('safety_mgmt').slice(0,2).join('+') || '消防安全+职业健康',
+      warehouse: getSelectedArray('warehouse_mgmt').slice(0,2).join('+') || '库位管理+先进先出',
+      digital: getSelectedArray('digital_sys').slice(0,3).join('+') || 'MES+SCADA+数字驾驶舱',
+      lean: getSelectedArray('lean_mgmt').slice(0,3).join('+') || '5S+TPM+ANDON',
+      audit: getSelectedArray('audit_std').slice(0,2).join('+') || 'ISO9001+IATF16949',
+      equipment: getSelectedArray('equipment')?.join('+') || 'AGV+数字大屏',
+    };
+  }
+
+  const MASTERS = ['整厂鸟瞰图','总平面图','目视化规划图','导视系统图','色彩规划图','标识系统图','数字化看板规划图','参观动线规划图'];
+  const AREAS = ['厂区入口区','门岗区','办公区','接待大厅','企业展厅','企业文化区','党建区','员工休息区','培训区','会议区','研发中心','实验室','生产车间','装配车间','注塑车间','机加工车间','焊接车间','钣金车间','喷涂车间','包装车间','无尘车间','洁净车间','仓储区','原料仓','半成品仓','成品仓','发货区','收货区','物流区','品质检测区','维修区','设备区','能源区','消防区','危险品区','危废区','配电房','空压机房','锅炉房','水处理区','员工通道','叉车通道','AGV通道','参观通道'];
+
+  function getDesc(name) {
+    if (name.includes('鸟瞰')) return '全厂建筑布局鸟瞰，物流动线、标识塔';
+    if (name.includes('总平面')) return '目视化规划总图，区域颜色划分';
+    if (name.includes('入口')) return '企业形象，访客登记，品牌标识墙';
+    if (name.includes('车间')) return '生产线体，ANDON看板，工具定置';
+    if (name.includes('仓储')) return '货架排列，库位编码，物流通道';
+    return '目视化标准区域，5S定置管理';
+  }
+
+  function generatePrompt(space, p, i=0) {
+    return [
+      `【${p.factoryName} - ${space}】`,
+      `行业：${p.industryType}｜品牌：${p.brand}`,
+      `风格：${p.style}｜颜色：${p.color}｜材质：${p.material}`,
+      `功能：${getDesc(space)}`,
+      `导视：${p.signage}｜编码：${p.coding}`,
+      `安全：${p.safety}｜精益：${p.lean}`,
+      `数字化：${p.digital}`,
+      `照明：${p.lighting}｜施工：UV打印+模块化`,
+      `验厂：${p.audit}｜广角f/8 8K`,
+    ].join('｜');
+  }
+
+  let currentData = [];
+  function renderSchemes(profiles) {
+    document.getElementById('mainLayout').style.display = 'flex';
+    const container = document.getElementById('schemesContainer');
+    const navScroll = document.getElementById('navScroll');
+    navScroll.innerHTML = '';
+    container.innerHTML = '';
+    currentData = [];
+
+    profiles.forEach((profile, si) => {
+      const spaces = [...MASTERS.map(s => ({name:s,prompt:generatePrompt(s,profile,si*10)})), ...AREAS.map(s => ({name:s,prompt:generatePrompt(s,profile,si*10+1)}))];
+      currentData.push({profile, spaces});
+      const section = document.createElement('div');
+      section.className = 'scheme-section';
+      section.innerHTML = `<h2>方案${si+1}：${profile.style} / ${profile.color}</h2>`;
+      spaces.forEach((sp, idx) => {
+        section.innerHTML += `<div class="space-card"><div class="card-header"><span class="space-title">📍 ${sp.name}</span><button class="btn-sm copy-btn">📋 复制</button></div><div class="prompt-text">${sp.prompt}</div></div>`;
+      });
+      container.appendChild(section);
+    });
+
+    // 导航
+    MASTERS.forEach(s => {
+      const el = document.createElement('div'); el.className='nav-item'; el.textContent=s; navScroll.appendChild(el);
+    });
+    AREAS.forEach(s => {
+      const el = document.createElement('div'); el.className='nav-item'; el.textContent=s; navScroll.appendChild(el);
+    });
+
+    // 复制按钮绑定
+    document.querySelectorAll('.copy-btn').forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        const prompt = currentData.flatMap(d=>d.spaces)[i]?.prompt;
+        if (prompt) copyToClipboard(prompt);
+      });
+    });
+
+    document.getElementById('pfStyle').textContent = profiles[0].style;
+    document.getElementById('pfColor').textContent = profiles[0].color;
+    document.getElementById('pfMaterial').textContent = profiles[0].material;
+    document.getElementById('mainLayout').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => showToast('✅ 已复制'), () => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('✅ 已复制'); } catch(e) { showToast('⚠️ 复制失败，请手动复制'); }
+    document.body.removeChild(ta);
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800);
+  }
+
+  function getAllText() {
+    return currentData.map((d,si)=>`方案${si+1}\n`+d.spaces.map(s=>`【${s.name}】\n${s.prompt}`).join('\n\n')).join('\n\n---\n');
+  }
+  function download(content,filename,type){ const b=new Blob([content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=filename; a.click(); }
+
+  function exportTXT(){ download(getAllText(),'工厂目视化方案.txt','text/plain'); }
+  function exportMD(){ download(currentData.map((d,si)=>`# 方案${si+1}\n`+d.spaces.map(s=>`## ${s.name}\n\`\`\`\n${s.prompt}\n\`\`\``).join('\n')).join('\n'),'方案.md','text/markdown'); }
+  function exportWord(){
+    let html='<html><body>'+currentData.map((d,si)=>`<h1>方案${si+1}</h1>`+d.spaces.map(s=>`<h2>${s.name}</h2><pre>${s.prompt}</pre>`).join('')).join('')+'</body></html>';
+    download(html,'方案.doc','application/msword');
+  }
+  function exportPDF(){ window.print(); }
+
+  // 初始化
+  renderConfigPanel();
+  document.getElementById('btnGenerate').addEventListener('click', ()=> renderSchemes([buildProfile()]) );
+  document.getElementById('btnGenerate3').addEventListener('click', ()=>{
+    const base = buildProfile();
+    const variants = [
+      {...base, style:'工业4.0科技风', color:'工业4.0科技蓝'},
+      {...base, style:'丰田精益风', color:'丰田色彩'},
+      {...base, style:'华为制造风', color:'华为制造色彩'}
+    ];
+    renderSchemes(variants);
+  });
+  document.getElementById('btnCopyAll').addEventListener('click', ()=> copyToClipboard(getAllText()));
+  document.getElementById('btnExportTXT').addEventListener('click', exportTXT);
+  document.getElementById('btnExportMD').addEventListener('click', exportMD);
+  document.getElementById('btnExportWord').addEventListener('click', exportWord);
+  document.getElementById('btnExportPDF').addEventListener('click', exportPDF);
+})();
+</script>
+</body>
+</html>
